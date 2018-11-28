@@ -33,6 +33,7 @@ struct
       of (0, 0) => empty()
        | (0, _) => y
        | (_, 0) => x
+       | _ =>
     let 
       (*1、高位补零使两串等长*)
       fun with0(a : bit seq, b : bit seq) =

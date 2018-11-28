@@ -29,19 +29,17 @@ struct
         in (append(a, taila), append(b, tailb))
         end;
       val (nx, ny) = with0(x, y)
-      fun seperate(x : bit seq) = 
-        case showt x
-          of EMPTY => (empty(), empty())
-           | ELT i => (empty(), singleton i)
-           | NODE(l, r) => (l,r);
-      val (p, q) = seperate(nx)
-      val (r, s) = seperate(ny)
+      val half = length(nx) div 2
+      val q = take(nx, half)
+      val p = drop(nx, half)
+      val s = take(ny, half)
+      val r = drop(ny, half)
       val (p1, p2, p3) = 
           par3(fn _ => p ** r,
                fn _ => q ** s,
                fn _ => (p ++ q) ** (r ++ s))
-      val mm = tabulate (fn _ => ZERO) ((length(nx) div 2)*2)
-      val m  = tabulate (fn _ => ZERO) (length(nx) div 2)
+      val mm = tabulate (fn _ => ZERO) (half*2)
+      val m  = tabulate (fn _ => ZERO) half
     in
       append(mm,p1) ++ append(m,p3 -- p1 -- p2) ++ p2
     end;
