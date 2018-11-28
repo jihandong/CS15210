@@ -29,6 +29,10 @@ struct
   *    最后看一下有没有溢出，如果就就在高位补充一个1就行了。
   *)
   fun x ++ y =
+    case (length(x), length(y))
+      of (0, 0) => empty()
+       | (0, _) => y
+       | (_, 0) => x
     let 
       (*1、高位补零使两串等长*)
       fun with0(a : bit seq, b : bit seq) =
