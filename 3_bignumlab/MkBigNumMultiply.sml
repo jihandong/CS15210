@@ -44,7 +44,7 @@ struct
       val mm = tabulate (fn _ => ZERO) (half*2)
       val m  = tabulate (fn _ => ZERO) half
     in
-      append(mm,p1) ++ append(m,p3 -- p1 -- p2) ++ p2
+      append(mm,p1) ++ append(m,p3 -- (p1 ++ p2)) ++ p2
     end;
   val mul = op**
 end
