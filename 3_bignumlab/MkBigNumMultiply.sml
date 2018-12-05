@@ -21,6 +21,7 @@ struct
        | (_, 1) => if nth y 0 = ZERO then empty() else x
        | _ =>
     let
+      (*补零为等长*)
       fun with0(a : bit seq, b : bit seq) =
         let 
           val len = Int.max(length a, length b)
@@ -29,11 +30,13 @@ struct
         in (append(a, taila), append(b, tailb))
         end;
       val (nx, ny) = with0(x, y)
+      (*取得半长*)
       val half = length(nx) div 2
       val q = take(nx, half)
       val p = drop(nx, half)
       val s = take(ny, half)
       val r = drop(ny, half)
+      (*3次并行乘法*)
       val (p1, p2, p3) = 
           par3(fn _ => p ** r,
                fn _ => q ** s,
