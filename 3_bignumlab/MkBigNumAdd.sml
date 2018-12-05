@@ -6,12 +6,13 @@ struct
 
   infix 6 ++
   exception NotYetImplemented
+  exception BugInGetResult
   datatype carry = GEN | PROP | STOP
  
  (*
   * 大整数相加
   * 1）首先把两个bit串补为相同长度，方便后续计算；
-  * 2）然后使用按位异或的方式得到两个串不考虑进位的和；
+  * 2）然后使用按位异或的方式得到两个串不考虑进位的“朴素和”；
   * 3）然后使用carry串储存每一位的进位信息：
   *      1+1用GEN表示；1+0用PROB表示；0+0用STOP表示
   * 4）然后在3 的基础上使用scan对进位情况进行分析，使用的结合函数为：
@@ -22,11 +23,8 @@ struct
   *    scan之后得到了每一位的进位情况：
   *      GEN表示进位，STOP表示不进位，PROP不会存在；
   *    多出的一位同时表示是否溢出；
-  * 5）然后用4中得到的carry串映射为bit串：
-  *      GEN -> ONE; STOP -> ZERO;
-  * 6）然后把2中不考虑进位的和与5中表示进位的串在进行异或操作：
-  *    就可以得到相加之后的结果；
-  *    最后看一下有没有溢出，如果就就在高位补充一个1就行了。
+  * 5）然后把“朴素和”和“进位信息”进行map2可以得到结果：
+  * 6) 最后看一下有没有溢出，如果就就在高位补充一个1就行了。
   *)
   fun x ++ y =
     case (length(x), length(y))
@@ -43,11 +41,11 @@ struct
         in (append(a, taila), append(b, tailb))
         end;
     
-      (*2&6、异或得到按位相加的和，不考虑进位*)
+      (*2、异或得到按位相加的和，不考虑进位*)
       fun bitXor(x : bit seq, y : bit seq) = 
         map2 (fn (xi, yi) => if xi = yi then ZERO else ONE) x y;
     
-      (*3&4&5，得到进位信息，用bit表示*)
+      (*3&4，得到进位信息，用bit表示*)
       fun getCarry(x : bit seq, y : bit seq) =
         let (*3，得到朴素carry信息*)
             fun getNaiveCarry(xi : bit, yi : bit) : carry = 
@@ -61,24 +59,29 @@ struct
                 of (_, GEN) => GEN
                  | (_, STOP) => STOP
                  | (some, PROP) => some;
-            (*5，carry转化为bit，这作为结果的第二部分*)
-            fun getBitCarry(n) = if n = GEN then ONE else ZERO;
          in 
            let 
              val naiveCarry = map2 getNaiveCarry x y
              val (realCarry, high) = scan getRealCarry STOP naiveCarry
-             val bitCarry = map getBitCarry realCarry
            in 
-             (bitCarry, high)
+             (realCarry, high)
            end
         end;
-    
+      (*5、直接得到结果*)
+      fun getResult(x : bit seq, y : carry seq) =
+        map2 (fn (i, j) => case (i, j)
+                          of (ONE, GEN) => ZERO
+                           | (ONE, STOP) => ONE
+                           | (ZERO, GEN) => ONE
+                           | (ZERO, STOP) => ZERO
+                           | (_,_) => raise BugInGetResult)
+              x y;
     in
       let
         val (cx, cy) = with0(x, y)
         val rawResult = bitXor(cx, cy)
         val (carryResult, high) = getCarry(cx, cy)
-        val result = bitXor(rawResult, carryResult)
+        val result = getResult(rawResult, carryResult)
       in
         (*6，判断高位是否溢出*)
         if high = GEN then append(result, singleton ONE)
