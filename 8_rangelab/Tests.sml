@@ -12,6 +12,7 @@ struct
    * of keys (and values will be automatically set to unit). *)
 
   val ordSet1 = % [5, 7, 2, 8, 9, 1]
+  val mySet1 = % [3, 2, 14, 13, 34, 8, 1, 60, 21, 5]
 
   val testsFirst = [
     ordSet1,
@@ -34,6 +35,7 @@ struct
   val testsJoin = [
     (ordSet1, % [100]),
     (ordSet1, % [3]),
+    (ordSet1, mySet1),
     (% [], % [100])
   ]
   val testsSplit = [
@@ -44,6 +46,7 @@ struct
   val testsRange = [
     (ordSet1, (5,8)),
     (ordSet1, (10,12)),
+    (mySet1, (5,40)),
     (% [], (5,8))
   ]
 
