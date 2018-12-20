@@ -13,9 +13,11 @@ struct
   val test3 = [(2,1),(4,2),(4,3),(4,5),(1,3),(3,5),(3,2),(1,4),(2,5),(5,1)]
   val testfile = "input/thesaurus.txt"
   val testfile2 = "input/simpletest.txt"
+  val mytest1 = [(1,2),(1,3),(1,4)]
+  val mytest2 = [(1,4),(2,4),(3,4)]
 
   (* The following are required *)
-  val testsNum = [edgeseq, edgeseq2,test3];
+  val testsNum = [edgeseq, edgeseq2,test3,mytest1,mytest2];
 
   val testsOutNeighbors = [(edgeseq, 1), (edgeseq, 2),(test3,1),(edgeseq2,5),(edgeseq2,7),(test3,9)]
 
