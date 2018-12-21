@@ -14,7 +14,7 @@ struct
   
   (* 保留每个出度大于0的节点，及其邻居 *)
   type graph = set table * int * set
-  type asp = vertex * (vertex seq table)
+  type asp = vertex * (vertex seq seq table)
   
   (* Task 2.1 *)
   (* adjacent table, W = O(E*lgE+lgV), S = O((lgE)^2)+lgV,*)
@@ -51,48 +51,46 @@ struct
   exception BUG
   fun makeASP (G : graph) (v : vertex) : asp =
     let
-      val g = getGraph(G)
-      fun bfs(px : vertex seq table, pf : vertex seq table) =
-        case Table.size(pf)
-          of 0 => px
+      fun bfs (x : vertex seq seq table, f : vertex seq seq table) =
+        (* broad search
+         * W = O(), S = O()
+         * 
+         *)
+        case Table.size(f)
+          of 0 => x
            | _ =>
         let
-          val tbunion = Table.merge Seq.append
-          fun updatef (x : vertex seq table, pf : vertex seq table) =
-            let
-              fun nghbSet (G : graph) (v : vertex) : set =
-                case find (getGraph G) v
-                  of NONE => Set.empty()
-                  | SOME aset => aset;
-              fun getpath (v : vertex, us : vertex seq) =
-                let
-                  val p2x = case Table.find x v
-                              of NONE => (Seq.empty())
-                               | SOME value => value
-                  val p2us = Seq.map (fn (u) => Table.singleton(v, Seq.append(p2x, Seq.singleton(u)))) us
-                in p2us
-                end;
-              val xd = Table.domain x
-              val pfd = Set.toSeq(Table.domain pf)
-              val rvus = Seq.map (fn (v) => (v, Set.toSeq(Set.difference((nghbSet G v), xd)))) pfd
-              val vus = Seq.filter (fn (v, s) => Seq.length(s) > 0) rvus
-              val p2u = Seq.flatten(Seq.map getpath vus)
-              val nf = Seq.reduce tbunion (Table.empty()) p2u
-            in nf
+          val x_ = Table.merge Seq.append (x, f)
+          (* update ligeal X, W = O(), S = () *)
+          
+          val fdmn = Table.domain f                                 
+          fun getSonsFather (fa : vertex) =
+            Seq.map (fn (so) => (so, fa)) (outNeighbors G fa)
+          val foutsT = Table.tabulate getSonsFather fdmn
+          val outfsS = Table.reduce Seq.append (Seq.empty()) foutsT
+          fun getPath (so : vertex, fa : vertex) = 
+            let 
+              val p2fa = case Table.find x_ fa
+                           of NONE => Seq.singleton(Seq.empty())
+                            | SOME paths => paths
+              val p2so = map (fn (p) => Seq.append(p, Seq.singleton so)) p2fa
+            in Table.singleton(so, p2so)
             end;
-          val x = tbunion(px, pf)
-          val f = updatef(x, pf)
-        in bfs(x, f)
-        end;
-    in (v , bfs(Table.empty(), Table.singleton(v, Seq.empty())) )
-    end;
-
-  (* Task 2.5 *)
+          val rawf_seq = Seq.map getPath outfsS
+          val rawf_ = Seq.reduce (Table.merge Seq.append) (Table.empty()) rawf_seq
+          val f_ = Table.erase(rawf_, Table.domain(x_))
+        in bfs(x_, f_)
+        end
+    in
+      (v, bfs(Table.empty(), Table.singleton(v, Seq.singleton(Seq.singleton(v)))))
+    end
+  
+(* Task 2.5 *)
 fun report (A : asp) (v : vertex) : vertex seq seq =
   let
-    val paths = Table.collect(Table.toSeq (#2 A))
-  in case find paths v
-      of NONE => Seq.empty()
-       | SOME value => value
+    val paths  = case Table.find (#2 A) v
+                   of NONE => Seq.empty()
+                    | SOME v => v
+  in paths
   end
 end

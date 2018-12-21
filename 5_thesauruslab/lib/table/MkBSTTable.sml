@@ -94,10 +94,12 @@ struct
         combine (fn ((vOpt, NONE) | (NONE, vOpt)) => vOpt
                   | (SOME v1, SOME v2) => SOME (f (v1, v2)))
 
+    (* 选择A中在B中有的 *)
     fun extract (t1, t2) =
         combine (fn (_, NONE) => NONE
                   | (vOpt, SOME ()) => vOpt) (t1, t2)
 
+    (* 选择A中在B中没有的 *)
     fun erase (t1, t2) =
         combine (fn (vOpt, NONE) => vOpt
                   | (_, SOME ()) => NONE) (t1, t2)
