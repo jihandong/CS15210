@@ -21,12 +21,12 @@ struct
   fun makeCountTable (S : point seq) : countTable =
     let
       val ps = Seq.sort (fn ((i, _), (j, _)) => compareKey(i, j)) S
-      (*构造内表：对每个x，把横坐标小于它的点做成内表*)
+      (* exchange position of x and y, *)
       val ss = Seq.map (fn (i, j) => singleton(j, i)) ps
       val yts = Seq.scani join (empty()) ss
-      (*构造外表对应的串：把所有的“x-内表”整理成串*)
+      (* get pair of x * points sets whose points are left to x *)
       val xsyt = Seq.map2 (fn((x, _), t) => (x, t)) ps yts
-      (*去重：将重复的x清除，确保x唯一，再构成外表*)
+      (* we collect x * point sets togehter, and keep only one point set, the bigest*)
       val xcyts = Seq.collect compareKey xsyt
       val xcyt = Seq.map (fn (x, s) => singleton(x, Seq.nth s (Seq.length(s)-1))) xcyts
       val xtyt = Seq.reduce join (empty()) xcyt
