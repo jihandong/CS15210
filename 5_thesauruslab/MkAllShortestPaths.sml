@@ -52,22 +52,28 @@ struct
   fun makeASP (G : graph) (v : vertex) : asp =
     let
       fun bfs (x : vertex seq seq table, f : vertex seq seq table) =
-        (* broad search
-         * W = O(), S = O()
-         * 
-         *)
+      (* W = O(|F| * (E/V)^2 * logV) *)
+      (* S = O(logV) *)
         case Table.size(f)
           of 0 => x
            | _ =>
         let
           val x_ = Table.merge Seq.append (x, f)
-          (* update ligeal X, W = O(), S = () *)
-          
-          val fdmn = Table.domain f                                 
+          (* W = O(|F|*log(|X|/|F|)), S = (log(|X|+|F|)) *)
+          val fdmn = Table.domain f
+
+          (* get sons and father pairs whose father is from F*)
+          (* W = O(|F|*(logV+E/V)), S = O(logV) *)                         
           fun getSonsFather (fa : vertex) =
             Seq.map (fn (so) => (so, fa)) (outNeighbors G fa)
           val foutsT = Table.tabulate getSonsFather fdmn
+
+          (* get new veterx together *)
+          (* assume that every veterx in F has E/V sons *)
+          (* W = O((|F|*E/V)*log(V)), S = O(log^2 V) *)
           val outfsS = Table.reduce Seq.append (Seq.empty()) foutsT
+
+          (* W = (|F|*E/V)*logV+ |F|*(E/V)^2), S = O(logV) *)
           fun getPath (so : vertex, fa : vertex) = 
             let 
               val p2fa = case Table.find x_ fa
@@ -77,15 +83,25 @@ struct
             in Table.singleton(so, p2so)
             end;
           val rawf_seq = Seq.map getPath outfsS
+
+          (* get new paths into collet ... *)
+          (* W =  O((|F|*(E/V)^2*logV), S = O(log^2 V) *)
           val rawf_ = Seq.reduce (Table.merge Seq.append) (Table.empty()) rawf_seq
+          
+          (* ... and erase what we have had *)
+          (* W = O( |F|*(E/V)*log((|X|+|F|)/)), S = O(logV) *)
           val f_ = Table.erase(rawf_, Table.domain(x_))
         in bfs(x_, f_)
         end
     in
+      (* assume D*|Fi| for i in every recurse is equal to V *)
+      (* W = O(D*W(bfs)) = O(D*|F|*(E/V)^2*logV = O(E*logV)) *)
+      (* S = O(D*S(bfs)) = O(D*logV *)
       (v, bfs(Table.empty(), Table.singleton(v, Seq.singleton(Seq.singleton(v)))))
     end
   
 (* Task 2.5 *)
+(* W = O(logV + E/V), S = O() *)
 fun report (A : asp) (v : vertex) : vertex seq seq =
   let
     val paths  = case Table.find (#2 A) v
