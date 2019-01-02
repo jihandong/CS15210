@@ -12,8 +12,12 @@ struct
    * explain your decision here with comments.
    *)
   
-  (* 保留每个出度大于0的节点，及其邻居 *)
+  (* set table 含有每个节点及其邻居 *)
+  (* int 边数量 *)
+  (* set 节点集合 *)
   type graph = set table * int * set
+  (* vertex 起点 *)
+  (* vertex seq seq table 到每个节点的路径串的串 *)
   type asp = vertex * (vertex seq seq table)
   
   (* Task 2.1 *)
@@ -32,7 +36,7 @@ struct
 
   (* Task 2.2 *)
   (* 预先保存，并添加获得图结构的过程，W = S = O(1) *)
-  (* 作用是在graph结构的实现和使用之间添加抽象层ABSTRACT LAYERS，使实现更健壮 *)
+  (* 瞎扯：作用是在graph结构的实现和使用之间添加抽象层，使实现更健壮 *)
   fun numEdges    (G : graph) : int = (#2 G)
   fun numVertices (G : graph) : int = Set.size (#3 G)
   fun getGraph    (G : graph) = (#1 G)
@@ -95,13 +99,13 @@ struct
         end
     in
       (* assume D*|Fi| for i in every recurse is equal to V *)
-      (* W = O(D*W(bfs)) = O(D*|F|*(E/V)^2*logV = O(E*logV)) *)
+      (* W = O(D*W(bfs)) = O(D*|F|*(E/V)^2*logV = O(E/V* E*logV)) *)
       (* S = O(D*S(bfs)) = O(D*logV *)
       (v, bfs(Table.empty(), Table.singleton(v, Seq.singleton(Seq.singleton(v)))))
     end
   
 (* Task 2.5 *)
-(* W = O(logV + E/V), S = O() *)
+(* W = O(logV), S = O(logV) *)
 fun report (A : asp) (v : vertex) : vertex seq seq =
   let
     val paths  = case Table.find (#2 A) v
