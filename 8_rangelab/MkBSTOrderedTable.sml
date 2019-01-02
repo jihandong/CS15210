@@ -17,7 +17,7 @@ struct
   (* Remove this line before submitting! *)
   exception NYI
 
-  (*左递归下降*)
+  (* left-recurse *)
   fun first (T : 'a table) : (key * 'a) option =
     case Tree.expose T
       of NONE => NONE
@@ -26,7 +26,7 @@ struct
              of NONE => SOME(key, value)
               | _ => first(left);
 
-  (*右递归下降*)
+  (* right-recurse *)
   fun last (T : 'a table) : (key * 'a) option =
     case Tree.expose T
       of NONE => NONE
@@ -47,7 +47,7 @@ struct
               | _ => if k < key then previous left k
                      else previous right k;
                      *)
-  (*前驱节点*)
+  (* previous node *)
   fun previous (T : 'a table) (k : key) : (key * 'a) option =
     case Tree.expose T 
       of NONE => NONE
@@ -58,7 +58,7 @@ struct
              last left
            end;
   
-  (*后继节点*)
+  (* next node *)
   fun next (T : 'a table) (k : key) : (key * 'a) option =
     case Tree.expose T
       of NONE => NONE

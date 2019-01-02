@@ -18,6 +18,12 @@ struct
   (* Remove this line before submitting! *)
   exception NYI
 
+  (*
+   * 1、添加测试样例，写明每种测试样例的作用
+   * 2、makeCountTable的复杂度，包含空间复杂度
+   * 3、添加注释
+   *)
+
   fun makeCountTable (S : point seq) : countTable =
     let
       val ps = Seq.sort (fn ((i, _), (j, _)) => compareKey(i, j)) S
