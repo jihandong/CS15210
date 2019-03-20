@@ -34,9 +34,10 @@ struct
   ]
   val testsJoin = [
     (ordSet1, % [100]),
-    (ordSet1, % [3]),
+    (ordSet1, % [2]),
     (ordSet1, mySet1),
     (% [], % [100])
+    (% [], % [])
   ]
   val testsSplit = [
     (ordSet1, 7),
@@ -55,16 +56,22 @@ struct
   val points2 : point seq = % []
   val points3 = % [(10000,10000),(0,0)]
   val points4 = tabulate (fn i => (i,i)) 1000
+  val points5 = % [(~1,~1),(~2,~3),(~3,4),(0,0),(1,2),(2,3),(5,1)]
+  val points6 = % [(~1,~1),(0,0),(1,1)]
 
   val testsCount = [
     (points1, ((1,3),(5,1))),
     (points1, ((2,4),(4,2))),
     (points1, ((100,101),(101,100))),
-
     (points2, ((0,10),(10,0))),
     (points3, ((0,10000),(10000,0))),
-    (points4, ((0,500),(1000,0)))
+    (points4, ((0,500),(1000,0))),
+    (points5, ((~1,~1),(3,3))),
+    (points5, ((~2,5),(4,0))),
+    (points6, ((0,0),(0,0))),
+    (points6, ((~1,2),(0,~1)))
   ]
+    
 
 
 end
